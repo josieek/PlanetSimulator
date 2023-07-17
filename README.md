@@ -1,3 +1,5 @@
+[screenshot](screenshot.png)
+
 Kudos to Tech With Tim
 
 I used his tutorial, which can be found [here](https://www.youtube.com/watch?v=WTLPmUHTPqo&t=3052s),
