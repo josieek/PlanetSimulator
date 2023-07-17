@@ -11,6 +11,8 @@ YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 DARK_GREY = (80, 78, 81)
+ORANGE = (255, 165, 0)
+GREY = (128, 128, 128)
 
 FONT = pygame.font.SysFont("comicsans", 16)
 
@@ -35,6 +37,7 @@ class Planet:
 
         self.x_vel = 0
         self.y_vel = 0
+        self.moons = []
 
     def draw(self, win):
         x = self.x * self.SCALE + WIDTH / 2
@@ -53,6 +56,9 @@ class Planet:
         if not self.sun:
             distance_text = FONT.render(f"{round(self.distance_to_sun/1000, 1)}km", 1, WHITE)
             win.blit(distance_text, (x, y))
+
+        for moon in self.moons:
+            moon.draw(win)
 
     def attraction(self, other):
         other_x, other_y = other.x, other.y
@@ -74,7 +80,6 @@ class Planet:
         for planet in planets:
             if self == planet:
                 continue
-
             fx, fy = self.attraction(planet)
             total_fx += fx
             total_fy += fy
@@ -85,6 +90,30 @@ class Planet:
         self.y += self.y_vel * self.TIMESTEP
         self.orbit.append((self.x, self.y))
 
+        for moon in self.moons:
+            moon.update_position()
+
+class Moon(Planet):
+    def __init__(self, x, y, radius, color, mass, parent_planet):
+        super().__init__(x, y, radius, color, mass)
+        self.parent_planet = parent_planet
+
+    def update_position(self):
+        total_fx, total_fy = self.attraction(self.parent_planet)
+        self.x_vel += total_fx / self.mass * self.TIMESTEP
+        self.y_vel += total_fy / self.mass * self.TIMESTEP
+
+        self.parent_planet.x_vel += total_fx / self.parent_planet.mass * self.TIMESTEP
+        self.parent_planet.y_vel += total_fy / self.parent_planet.mass * self.TIMESTEP
+
+        self.x += self.x_vel * self.TIMESTEP + self.parent_planet.x_vel * self.TIMESTEP
+        self.y += self.y_vel * self.TIMESTEP + self.parent_planet.y_vel * self.TIMESTEP
+        self.orbit.append((self.x, self.y))
+
+    def draw(self, win):
+        x = self.x * self.SCALE + WIDTH / 2
+        y = self.y * self.SCALE + HEIGHT / 2
+        pygame.draw.circle(win, self.color, (x, y), self.radius)
 
 def main():
     run = True
@@ -93,19 +122,49 @@ def main():
     sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10**30)
     sun.sun = True
 
-    earth = Planet(-1 * Planet.AU, 0, 16, BLUE, 5.9742 * 10**24)
+    earth = Planet(-1 * Planet.AU, 0, 15, BLUE, 5.9742 * 10**24)
     earth.y_vel = 29.783 * 1000
 
-    mars = Planet(-1.524 * Planet.AU, 0, 12, RED, 6.39 * 10**24)
+    mars = Planet(-1.524 * Planet.AU, 0, 11, RED, 6.39 * 10**24)
     mars.y_vel = 24.077 * 1000
 
-    mercury = Planet(0.387 * Planet.AU, 0, 8, DARK_GREY, 0.330 * 10**24)
+    mercury = Planet(0.387 * Planet.AU, 0, 10, DARK_GREY, 0.330 * 10**24)
     mercury .y_vel = -47.4 * 1000
 
     venus = Planet(0.723 * Planet.AU, 0, 14, WHITE, 4.8685 * 10**24)
     venus.y_vel = -35.02 * 1000
 
+    phobos = Moon(-1.6 * Planet.AU, 0, 7, GREY, 1.0659 * 10**16, mars)
+    # Phobos initialization
+    distance_phobos_mars = abs(phobos.x - mars.x)
+    orbital_velocity_phobos = math.sqrt(Planet.G * mars.mass / distance_phobos_mars)
+    angle_phobos = math.atan2(phobos.y - mars.y, phobos.x - mars.x)
+    phobos.x_vel = -orbital_velocity_phobos * math.sin(angle_phobos)
+    phobos.y_vel = orbital_velocity_phobos * math.cos(angle_phobos)
+
+    deimos = Moon(-1.7 * Planet.AU, 0, 7, GREY, 1.4762 * 10**15, mars)
+    # Deimos initialization
+    distance_deimos_mars = abs(deimos.x - mars.x)
+    orbital_velocity_deimos = math.sqrt(Planet.G * mars.mass / distance_deimos_mars)
+    angle_deimos = math.atan2(deimos.y - mars.y, deimos.x - mars.x)
+    deimos.x_vel = -orbital_velocity_deimos * math.sin(angle_deimos)
+    deimos.y_vel = orbital_velocity_deimos * math.cos(angle_deimos)
+
+    moon = Moon(-1.1 * Planet.AU, 0, 7, GREY, 7.342 * 10**22, earth)
+    # Moon initialization
+    distance_moon_earth = abs(moon.x - earth.x)
+    orbital_velocity_moon = math.sqrt(Planet.G * earth.mass / distance_moon_earth)
+    angle_moon = math.atan2(moon.y - earth.y, moon.x - earth.x)
+    moon.x_vel = -orbital_velocity_moon * math.sin(angle_moon)
+    moon.y_vel = orbital_velocity_moon * math.cos(angle_moon)
+
+    mars.moons.append(phobos)
+    mars.moons.append(deimos)
+
+    earth.moons.append(moon)
+
     planets = [sun, earth, mars, mercury, venus]
+
 
     while run:
         clock.tick(60)
