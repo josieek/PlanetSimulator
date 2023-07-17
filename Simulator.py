@@ -134,29 +134,20 @@ def main():
     venus = Planet(0.723 * Planet.AU, 0, 14, WHITE, 4.8685 * 10**24)
     venus.y_vel = -35.02 * 1000
 
-    phobos = Moon(-1.6 * Planet.AU, 0, 7, GREY, 1.0659 * 10**16, mars)
+    phobos = Moon(-1.424 * Planet.AU, 0, 7, GREY, 1.0659 * 10**15, mars)
     # Phobos initialization
     distance_phobos_mars = abs(phobos.x - mars.x)
-    orbital_velocity_phobos = math.sqrt(Planet.G * mars.mass / distance_phobos_mars)
-    angle_phobos = math.atan2(phobos.y - mars.y, phobos.x - mars.x)
-    phobos.x_vel = -orbital_velocity_phobos * math.sin(angle_phobos)
-    phobos.y_vel = orbital_velocity_phobos * math.cos(angle_phobos)
+    phobos.y_vel= math.sqrt(Planet.G * mars.mass / distance_phobos_mars)
 
     deimos = Moon(-1.7 * Planet.AU, 0, 7, GREY, 1.4762 * 10**15, mars)
     # Deimos initialization
     distance_deimos_mars = abs(deimos.x - mars.x)
-    orbital_velocity_deimos = math.sqrt(Planet.G * mars.mass / distance_deimos_mars)
-    angle_deimos = math.atan2(deimos.y - mars.y, deimos.x - mars.x)
-    deimos.x_vel = -orbital_velocity_deimos * math.sin(angle_deimos)
-    deimos.y_vel = orbital_velocity_deimos * math.cos(angle_deimos)
+    deimos.y_vel = math.sqrt(Planet.G * mars.mass / distance_deimos_mars)
 
     moon = Moon(-1.1 * Planet.AU, 0, 7, GREY, 7.342 * 10**22, earth)
     # Moon initialization
     distance_moon_earth = abs(moon.x - earth.x)
-    orbital_velocity_moon = math.sqrt(Planet.G * earth.mass / distance_moon_earth)
-    angle_moon = math.atan2(moon.y - earth.y, moon.x - earth.x)
-    moon.x_vel = -orbital_velocity_moon * math.sin(angle_moon)
-    moon.y_vel = orbital_velocity_moon * math.cos(angle_moon)
+    moon.y_vel = math.sqrt(Planet.G * earth.mass / distance_moon_earth)
 
     mars.moons.append(phobos)
     mars.moons.append(deimos)
