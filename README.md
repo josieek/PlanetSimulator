@@ -1,6 +1,8 @@
 Kudos to Tech With Tim
+
 I used his tutorial, which can be found [here](https://www.youtube.com/watch?v=WTLPmUHTPqo&t=3052s),
-to create the starting code, with the planets orbiting the sun.
+to create the starting code, with the planets orbiting the sun. This was very well explained and easy to follow, even 
+when I had little prior experience with python.
 
 I then added moons of mars and earth by creating the Moon class, a subclass of Planet.
 The moon class overrides the update_position method. Rather than taking into account the force of all planets, 
